@@ -1,79 +1,114 @@
-🛡️ FastAPI Auth/Auth System Demo
+🛡️ FastAPI Authentication & Authorization System
+A comprehensive demonstration of a full-featured Authentication (AuthN) and Authorization (AuthZ) system built with FastAPI. This system implements JSON Web Tokens (JWT) for user identification and a flexible Role-Based Access Control (RBAC) model for resource access management.
 
-Этот проект представляет собой демонстрацию полнофункциональной системы Аутентификации (AuthN) и Авторизации (AuthZ), реализованной на FastAPI. Система использует JSON Web Tokens (JWT) для идентификации пользователей и гибкую модель Role-Based Access Control (RBAC) для управления доступом к ресурсам.
+🎯 Goals & Architecture
+The primary objective of this project is to develop a custom backend system that fully implements user management and access control functionality.
 
-🎯 Цели и Архитектура
+1. Authorization Schema (RBAC)
+The system is based on the Role → Resource → Action model, providing high flexibility:
 
-Основная задача проекта — разработать собственную backend-систему, которая полностью реализует функционал управления пользователями и разграничения прав доступа.
-
-1. Схема Авторизации (RBAC)
-
-Система основана на модели Роль → Ресурс → Действие (Role-Resource-Action), что обеспечивает высокую гибкость:
-Компонент
-Пример
-Описание
-Роль (Role)
-ADMIN, MANAGER, USER
-Группы пользователей, определяющие набор разрешений.
-Ресурс (Resource)
-PROJECT, TASK, PERMISSIONS
-Объекты в системе, к которым требуется доступ.
-Действие (Action)
-READ, CREATE, UPDATE, DELETE
-Типы операций, которые могут быть выполнены над ресурсом.
-Защита роутов выполняется через зависимость Depends(check_permission(“PROJECT”, “CREATE”)), которая проверяет, имеет ли текущий пользователь право выполнять указанное действие над данным ресурсом.
-
-2. Структура Проекта
-
+Component	Example	Description
+Role	ADMIN, MANAGER, USER	User groups defining permission sets
+Resource	PROJECT, TASK, PERMISSIONS	System objects requiring access control
+Action	READ, CREATE, UPDATE, DELETE	Operation types that can be performed on resources
+Protection	Depends(check_permission("PROJECT", "CREATE"))	Routes protected by dependencies that verify user permissions
+2. Project Structure
+text
 FastAPI Auth Service/
 ├── auth/
-│   ├── auth_router.py           # Роуты: /register, /login, /me, /logout
-│   └── auth_service.py          # Бизнес-логика: хеширование, Mock-DB, get_current_user
-│
+│   ├── auth_router.py          # Routes: /register, /login, /me, /logout
+│   └── auth_service.py         # Business logic: hashing, Mock-DB, get_current_user
 ├── permissions/
-│   ├── permission_data.py       # Набор данных: роли, ресурсы, правила доступа (PERMISSIONS)
-│   └── permission_middleware.py # Зависимость check_permission
-│
-├── schemas.py                   # Схемы Pydantic для данных, токенов и ответов
-├── security.py                  # JWT и bcrypt функции
-└── main.py                      # Точка входа: инициализация FastAPI, Admin API, Mock API
+│   ├── permission_data.py      # Data sets: roles, resources, access rules (PERMISSIONS)
+│   └── permission_middleware.py # Dependency check_permission
+├── schemas.py                  # Pydantic schemas for data, tokens, responses
+├── security.py                 # JWT and bcrypt utility functions
+└── main.py                     # Entry point, FastAPI initialization, Admin API, Mock API
+⚙️ Setup & Installation
+This project requires Python 3.11+.
 
-⚙️ Настройка и Запуск
+1. Install Dependencies
+Make sure you're in a virtual environment and install the required packages:
 
-Проект требует Python 3.11+.
-	1.	Установка зависимостей
-Убедитесь, что вы находитесь в виртуальном окружении и установите необходимые пакеты:
+bash
 pip install fastapi uvicorn pydantic python-jose[cryptography] bcrypt
-	2.	Запуск сервера
-Запустите приложение в режиме авто-перезагрузки:
-uvicorn main:app –reload
+2. Run the Server
+Start the application with auto-reload:
 
-Сервер будет доступен по адресу: http://127.0.0.1:8000
+bash
+uvicorn main:app --reload
+The server will be available at: http://127.0.0.1:8000
 
-🧪 Тестирование API
+🧪 API Testing
+Use the built-in Swagger UI for interactive testing: http://127.0.0.1:8000/docs
 
-Для интерактивного тестирования используйте встроенный Swagger UI: http://127.0.0.1:8000/docs
+1. Test Accounts
+The following test accounts are created by default in auth_service.py:
 
-1. Учетные записи для тестирования
+Email	Password	Role	Description
+admin@app.com	adminpass	ADMIN	Full permissions, can manage access rules
+manager@app.com	managerpass	MANAGER	Limited permissions
+2. Testing Sequence (Scenario)
+Follow these steps to test the complete functionality:
 
-В файле auth_service.py по умолчанию созданы два тестовых аккаунта:
-Email
-Пароль
-Роль
-Примечание
-admin@app.com
-adminpass
-ADMIN
-Полные права, может управлять разрешениями
-manager@app.com
-managerpass
-MANAGER
-Ограниченные права
-2. Последовательность Тестирования (Сценарий)
-	1.	Login (Вход): Выполните POST /api/v1/auth/login с данными admin@app.com/adminpass и скопируйте полученный Access Token.
-	2.	Авторизация: В Swagger UI нажмите кнопку Authorize и вставьте токен в поле.
-	3.	Проверка идентификации: Выполните GET /api/v1/auth/me. Должен вернуться профиль администратора (200 OK).
-	4.	Проверка Admin API: Выполните GET /api/v1/admin/permissions. Должен вернуться список всех правил (200 OK).
-	5.	Тестирование 403 (Forbidden): Получите токен для manager@app.com. С этим токеном попытайтесь выполнить POST /api/v1/projects. Должен быть получен ответ 403 Forbidden.
-	6.	Мягкое удаление пользователя: Зарегистрируйте нового тестового пользователя и выполните DELETE /api/v1/auth/me с его токеном. После этого при попытке входа (POST /api/v1/auth/login) должен быть получен ответ 401 Unauthorized.
+Login: Execute POST /api/v1/auth/login with admin@app.com/adminpass. Copy the received Access Token.
 
+Authorization: Click the Authorize button in Swagger UI and paste the token in the field.
+
+Identity Verification: Execute GET /api/v1/auth/me. Should return the Admin profile (200 OK).
+
+Admin API Test: Execute GET /api/v1/admin/permissions. Should return all access rules (200 OK).
+
+Testing 403 (Forbidden):
+
+Get a token for MANAGER (manager@app.com)
+
+With the Manager token, attempt to execute POST /api/v1/projects. Should receive 403 Forbidden.
+
+Soft Delete: Register a new test user and execute DELETE /api/v1/auth/me with their token. Then verify they can no longer execute POST /api/v1/auth/login (should receive 401 Unauthorized).
+
+📚 API Endpoints
+Authentication Routes (/api/v1/auth)
+POST /register - User registration
+
+POST /login - User login
+
+GET /me - Get current user profile
+
+DELETE /me - Soft delete current user
+
+POST /logout - User logout
+
+Admin Routes (/api/v1/admin)
+GET /permissions - View all permission rules (Admin only)
+
+Protected Routes (/api/v1)
+GET /projects - Get projects (requires PROJECT:READ)
+
+POST /projects - Create project (requires PROJECT:CREATE)
+
+GET /tasks - Get tasks (requires TASK:READ)
+
+🔒 Security Features
+JWT Tokens for stateless authentication
+
+BCrypt for password hashing
+
+RBAC with fine-grained permissions
+
+Route protection with dependency injection
+
+Soft delete functionality
+
+Token blacklisting for logout
+
+🚀 Development
+The system is designed to be easily extensible. You can:
+
+Add new resources and actions in permission_data.py
+
+Create new roles with custom permission sets
+
+Extend the user model with additional fields
+
+Integrate with real databases (currently uses mock data)
