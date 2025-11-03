@@ -57,35 +57,3 @@ Execute GET /api/v1/admin/permissions — should return all permission rules (20
 Get token for manager@app.com.
 
 
-📚 API Endpoints
-
-🔑 Authentication Routes (/api/v1/auth)
-	•	POST /register — User registration
-	•	POST /login — User login
-	•	GET /me — Get current user profile
-	•	DELETE /me — Soft delete current user
-	•	POST /logout — User logout
-
-⚙️ Admin Routes (/api/v1/admin)
-	•	GET /permissions — View all permission rules (Admin only)
-
-🧱 Protected Routes (/api/v1)
-	•	GET /projects — Get projects (requires PROJECT:READ)
-	•	POST /projects — Create project (requires PROJECT:CREATE)
-	•	GET /tasks — Get tasks (requires TASK:READ)
-
-⸻
-
-🔒 Security Features
-	•	JWT Tokens for stateless authentication
-	•	BCrypt for password hashing
-	•	RBAC with fine-grained permissions
-	•	Route protection with dependency injection
-	•	Soft delete functionality
-	•	Token blacklisting for logout
-
-Then execute POST /api/v1/projects — should return 403 Forbidden.
-
-6️⃣ Soft Delete:
-Register a new user → execute DELETE /api/v1/auth/me using their token.
-Then try POST /api/v1/auth/login again — should return 401 Unauthorized.
