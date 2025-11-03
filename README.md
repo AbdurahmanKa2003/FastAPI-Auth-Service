@@ -21,24 +21,7 @@ The system is based on the **Role → Resource → Action** model, providing hig
 | **Resource** | PROJECT, TASK, PERMISSIONS | System objects requiring access control |
 | **Action** | READ, CREATE, UPDATE, DELETE | Operation types that can be performed on resources |
 
-**Protection Example:**
 
-```python
-Depends(check_permission("PROJECT", "CREATE"))
-Each route is protected by a dependency that verifies whether the current user has the right to perform the specified action on the given resource.
-
-FastAPI Auth Service/
-├── auth/
-│   ├── auth_router.py           # Routes: /register, /login, /me, /logout
-│   └── auth_service.py          # Business logic: hashing, Mock-DB, get_current_user
-│
-├── permissions/
-│   ├── permission_data.py       # Data sets: roles, resources, access rules (PERMISSIONS)
-│   └── permission_middleware.py # Dependency check_permission
-│
-├── schemas.py                   # Pydantic schemas for data, tokens, responses
-├── security.py                  # JWT and bcrypt utility functions
-└── main.py                      # Entry point, FastAPI initialization, Admin API, Mock API
 
 ⚙️ Setup & Installation
 
